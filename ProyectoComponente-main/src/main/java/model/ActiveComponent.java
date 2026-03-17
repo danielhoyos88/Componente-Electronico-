@@ -7,12 +7,12 @@ import java.util.List;
 
 /**
  *
- * @author jesus
+ * @author Daniel
  */
-public class ActiveComponent extends ElectronicComponent implements IAdjustable {
+public class ActiveComponent extends ElectronicComponent implements IAplicable {
     
     private List <String> pinNames;
-    private double gainFactor;
+    private double gainFactor;  
 
     public ActiveComponent() {
         super();
@@ -109,11 +109,20 @@ public class ActiveComponent extends ElectronicComponent implements IAdjustable 
         this.gainFactor = gainFactor;
     }
 
-    public List<String> getPinNames() {
-        return pinNames;
-    }
+   public List<String> getPinNames() {
+    return pinNames;
+}
 
-    /* No incluimos setPinNames para evitar cambiar la estructura física 
-       del componente una vez creado, manteniendo la integridad.
-    */
+/* No incluimos setPinNames para evitar cambiar la estructura física 
+   del componente una vez creado, manteniendo la integridad.
+*/
+
+@Override
+public String toString() {
+    return super.toString()
+            + "\nTipo: Activo"
+            + "\nFactor de ganancia: " + gainFactor
+            + "\nPines: " + getPinLabels();
+}
+
 }

@@ -142,7 +142,7 @@ public class GUIAddActiveComponent extends javax.swing.JFrame {
                     pinList
             );
 
-            ElectronicComponentService.add(component);
+            ElectronicComponentService.getInstance().add(component);
 
             JOptionPane.showMessageDialog(this, "Componente activo guardado correctamente");
             dispose();

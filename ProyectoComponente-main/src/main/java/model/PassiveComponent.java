@@ -6,7 +6,7 @@ package model;
 
 /**
  *
- * @author jesus
+ * @author Daniel
  */
 public class PassiveComponent extends ElectronicComponent {
     private double tolerance;
@@ -81,7 +81,14 @@ public class PassiveComponent extends ElectronicComponent {
         return powerWithTolerance;
     }
     
-
+@Override
+public String toString() {
+    return super.toString() +
+           "\nTipo: Pasivo" +
+           "\nValor nominal: " + nominalValue.getMagnitude() + " " + nominalValue.getUnit() +
+           "\nTolerancia: ±" + tolerance + "%";
+}
    
 }
+ 
  

@@ -6,7 +6,7 @@ package model;
 
 /**
  *
- * @author jesus
+ * @author Daniel
  */
 public interface IAdjustable {
     public void adjustOperationPoint(double factor);

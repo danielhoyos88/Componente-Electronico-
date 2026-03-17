@@ -6,7 +6,7 @@ package model;
 
 /**
  *
- * @author jesus
+ * @author Daniel
  */
 
 public abstract class ElectronicComponent {
@@ -110,8 +110,13 @@ public abstract class ElectronicComponent {
         this.current = current;
     }
     
-    @Override
-    public String toString() {
-        return "ID: " + id + " | " + brand + " (" + packageType + ")";
-    }
+   @Override
+public String toString() {
+    return "ID: " + id +
+           "\nMarca: " + brand +
+           "\nEncapsulado: " + packageType +
+           "\nVoltaje: " + voltage + " V" +
+           "\nCorriente: " + current + " A" +
+           "\nNúmero de pines: " + pinCount;
+}
 }

@@ -6,7 +6,7 @@ package model;
 
 /**
  *
- * @author jesus
+ * @author Daniel
  */
 public final class UnitMeasurement {
     private double magnitude;

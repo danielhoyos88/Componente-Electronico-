@@ -1,9 +1,11 @@
 package gui;
 
+import javax.swing.JOptionPane;
+
+import com.mycompany.electroniccomponentsproject.service.ElectronicComponentService;
+
 import model.PassiveComponent;
 import model.UnitMeasurement;
-import com.mycompany.electroniccomponentsproject.service.ElectronicComponentService;
-import javax.swing.JOptionPane;
 
 public class GUIAddPassiveComponent extends javax.swing.JFrame {
 
@@ -142,7 +144,7 @@ public class GUIAddPassiveComponent extends javax.swing.JFrame {
                     id, brand, packageType, voltage, current, tolerance, nominal
             );
 
-            ElectronicComponentService.add(component);
+            ElectronicComponentService.getInstance().add(component);
 
             JOptionPane.showMessageDialog(this, "Componente pasivo guardado correctamente");
             dispose();
@@ -168,3 +170,4 @@ public class GUIAddPassiveComponent extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(() -> new GUIAddPassiveComponent().setVisible(true));
     }
 }
+

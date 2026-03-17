@@ -5,14 +5,17 @@
 package com.mycompany.electroniccomponentsproject;
 
 import gui.GUIMain;
+import observer.ComponentLogger;
+import com.mycompany.electroniccomponentsproject.service.ElectronicComponentService;
 
 /**
  *
- * @author jesus
+ * @author Daniel
  */
 public class ElectronicComponentsProject {
 
     public static void main(String[] args) {
+        ElectronicComponentService.getInstance().addObserver(new ComponentLogger());
         java.awt.EventQueue.invokeLater(() -> {
             new GUIMain().setVisible(true);
         });

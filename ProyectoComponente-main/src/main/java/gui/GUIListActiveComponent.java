@@ -1,87 +1,73 @@
 package gui;
 
-import model.ActiveComponent;
-import com.mycompany.electroniccomponentsproject.service.ElectronicComponentService;
-
-import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
+import java.awt.BorderLayout;
 import java.util.List;
 
-public class GUIListActiveComponent extends javax.swing.JFrame {
+import javax.swing.JFrame;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
+
+import com.mycompany.electroniccomponentsproject.service.ElectronicComponentService;
+import model.ActiveComponent;
+import model.ElectronicComponent;
+import observer.ComponentObserver;
+
+public class GUIListActiveComponent extends JFrame implements ComponentObserver {
 
     private JTable table;
     private DefaultTableModel tableModel;
+    private final ElectronicComponentService service = ElectronicComponentService.getInstance();
 
     public GUIListActiveComponent() {
-        initComponents();
         setTitle("Listar Componentes Activos");
+        setSize(800, 400);
         setLocationRelativeTo(null);
-        loadActiveComponents();
-    }
+        setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 
-    private void initComponents() {
+        initUI();
+        loadData();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.DISPOSE_ON_CLOSE);
+        // Registrar como observer para actualizacion automatica
+        service.addObserver(this);
 
-        tableModel = new DefaultTableModel();
-        tableModel.setColumnIdentifiers(new String[]{
-                "ID", "Brand", "Package", "Voltage", "Current", "Gain", "Pins"
+        // Al cerrar, dejar de escuchar
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            @Override
+            public void windowClosing(java.awt.event.WindowEvent e) {
+                service.removeObserver(GUIListActiveComponent.this);
+            }
         });
-
-        table = new JTable(tableModel);
-
-        JScrollPane scrollPane = new JScrollPane(table);
-
-        JButton btnRefresh = new JButton("Actualizar");
-        btnRefresh.addActionListener(e -> loadActiveComponents());
-
-        javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
-        getContentPane().setLayout(layout);
-
-        layout.setHorizontalGroup(
-                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                                .addGap(20)
-                                .addGroup(layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                                        .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 650, Short.MAX_VALUE)
-                                        .addComponent(btnRefresh, GroupLayout.DEFAULT_SIZE, GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-                                .addGap(20))
-        );
-
-        layout.setVerticalGroup(
-                layout.createParallelGroup(GroupLayout.Alignment.LEADING)
-                        .addGroup(layout.createSequentialGroup()
-                                .addGap(20)
-                                .addComponent(scrollPane, GroupLayout.DEFAULT_SIZE, 350, Short.MAX_VALUE)
-                                .addGap(10)
-                                .addComponent(btnRefresh, GroupLayout.PREFERRED_SIZE, 35, GroupLayout.PREFERRED_SIZE)
-                                .addGap(20))
-        );
-
-        pack();
     }
 
-    private void loadActiveComponents() {
+    private void initUI() {
+        String[] columns = {"ID", "Brand", "Package", "Voltage", "Current", "Gain Factor", "Pins"};
+        tableModel = new DefaultTableModel(columns, 0);
+        table = new JTable(tableModel);
+        add(new JScrollPane(table), BorderLayout.CENTER);
+    }
 
-        tableModel.setRowCount(0); // limpiar tabla
-
-        List<ActiveComponent> list =
-                ElectronicComponentService.findComponentByType(ActiveComponent.class);
-
-        for (ActiveComponent component : list) {
+    private void loadData() {
+        tableModel.setRowCount(0);
+        List<ActiveComponent> list = service.findComponentByType(ActiveComponent.class);
+        for (ActiveComponent comp : list) {
             tableModel.addRow(new Object[]{
-                    component.getId(),
-                    component.getBrand(),
-                    component.getPackageType(),
-                    component.getVoltage(),
-                    component.getCurrent(),
-                    component.getGainFactor(),
-                    component.getPinNames()
+                comp.getId(), comp.getBrand(), comp.getPackageType(),
+                comp.getVoltage(), comp.getCurrent(),
+                comp.getGainFactor(), comp.getPinLabels()
             });
         }
     }
 
-    public static void main(String args[]) {
-        java.awt.EventQueue.invokeLater(() -> new GUIListActiveComponent().setVisible(true));
+    // Observer: se llama automaticamente al agregar un componente
+    @Override
+    public void onComponentAdded(ElectronicComponent component) {
+        loadData();
+    }
+
+    // Observer: se llama automaticamente al eliminar un componente
+    @Override
+    public void onComponentDeleted(int id) {
+        loadData();
     }
 }

@@ -1,0 +1,7 @@
+com/components/model/ActiveComponent.class
+com/components/model/PassiveComponent.class
+com/components/controller/PassiveComponentController.class
+com/components/ComponentesRESTServerApplication.class
+com/components/model/ElectronicComponent.class
+com/components/controller/ActiveComponentController.class
+com/components/service/ComponentService.class

@@ -51,18 +51,29 @@ class FormSearchPassive(tk.Toplevel):
         self.resizable(False, False)
         self.grab_set()
 
-        tk.Label(self, text="ID:").grid(row=0, column=0, padx=10, pady=10, sticky="e")
+        tk.Label(self, text="ID:").grid(row=0, column=0, padx=10, pady=6, sticky="e")
         self.txt_id = tk.Entry(self, width=20)
-        self.txt_id.grid(row=0, column=1, padx=10, pady=10)
+        self.txt_id.grid(row=0, column=1, padx=10, pady=6)
+
+        tk.Label(self, text="Marca:").grid(row=1, column=0, padx=10, pady=6, sticky="e")
+        self.txt_brand = tk.Entry(self, width=20)
+        self.txt_brand.grid(row=1, column=1, padx=10, pady=6)
+
+        tk.Label(self, text="(Use ID o Marca)", fg="gray").grid(row=2, column=0, columnspan=2)
         tk.Button(self, text="Buscar", bg="#1e50a0", fg="white",
-                  command=self._search).grid(row=0, column=2, padx=10)
+                  command=self._search).grid(row=2, column=2, padx=10)
 
         self.result = tk.Text(self, width=50, height=12, state="disabled", bg="#e8e8e8", fg="black", font=("Courier", 10))
-        self.result.grid(row=1, column=0, columnspan=3, padx=10, pady=10)
+        self.result.grid(row=3, column=0, columnspan=3, padx=10, pady=10)
 
     def _search(self):
         try:
-            c = api.get_passive(int(self.txt_id.get()))
+            id_val = self.txt_id.get().strip()
+            brand_val = self.txt_brand.get().strip()
+            c = api.search_passive(
+                id=int(id_val) if id_val else None,
+                brand=brand_val if brand_val else None
+            )
             self.result.config(state="normal")
             self.result.delete("1.0", tk.END)
             if not c:
@@ -209,12 +220,21 @@ class FormDeletePassive(tk.Toplevel):
                 messagebox.showerror("Error", str(ex))
 
 
-# ───────────────────────── LIST PASSIVE ─────────────────────────
+# ───────────────────────── OBSERVER + LIST PASSIVE ─────────────────────────
+class ListObserver:
+    def __init__(self, label: tk.Label):
+        self._label = label
+
+    def on_data_loaded(self, count: int, filtered: bool):
+        msg = f"{'Filtro aplicado' if filtered else 'Todos los registros'}: {count} componente(s) encontrado(s)."
+        self._label.config(text=msg, fg="#1e50a0")
+
+
 class FormListPassive(tk.Toplevel):
     def __init__(self, master):
         super().__init__(master)
         self.title("Listar Componentes Pasivos")
-        self.geometry("900x420")
+        self.geometry("900x450")
         self.grab_set()
 
         filter_frame = tk.Frame(self)
@@ -231,6 +251,10 @@ class FormListPassive(tk.Toplevel):
         tk.Button(filter_frame, text="Ver todos", bg="gray", fg="white",
                   command=self._clear).pack(side="left")
 
+        self.lbl_status = tk.Label(self, text="", font=("Arial", 9, "italic"))
+        self.lbl_status.pack(anchor="w", padx=12)
+        self._observer = ListObserver(self.lbl_status)
+
         cols = ("ID", "Marca", "Encapsulado", "Voltaje", "Corriente", "Pines", "Tolerancia", "Magnitud", "Unidad", "Fecha Registro")
         self.tree = ttk.Treeview(self, columns=cols, show="headings")
         for c in cols:
@@ -242,6 +266,15 @@ class FormListPassive(tk.Toplevel):
         scroll.pack(side="right", fill="y")
 
         self._load()
+        self._schedule_refresh()
+
+    def _schedule_refresh(self):
+        self._load()
+        self._job = self.after(3000, self._schedule_refresh)
+
+    def destroy(self):
+        self.after_cancel(self._job)
+        super().destroy()
 
     def _clear(self):
         self.txt_brand.delete(0, tk.END)
@@ -260,5 +293,6 @@ class FormListPassive(tk.Toplevel):
                     c["current"], c["pinCount"], c["tolerance"],
                     c["nominalMagnitude"], c["nominalUnit"],
                     c.get("registrationDate", "N/A")))
-        except Exception as ex:
-            messagebox.showerror("Error", str(ex))
+            self._observer.on_data_loaded(len(data), filtered=bool(brand or pkg))
+        except Exception:
+            pass

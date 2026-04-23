@@ -19,6 +19,11 @@ def _request(method, path, data=None):
 
 def add_passive(c):        return _request("POST", "/api/passive", c)
 def get_passive(id):       return _request("GET", f"/api/passive/{id}")
+def search_passive(id=None, brand=None):
+    q = []
+    if id is not None: q.append(f"id={id}")
+    if brand:          q.append(f"brand={brand}")
+    return _request("GET", "/api/passive/search" + ("?" + "&".join(q) if q else ""))
 def list_passive(brand=None, pkg=None):
     q = []
     if brand: q.append(f"brand={brand}")
@@ -29,6 +34,11 @@ def delete_passive(id):    return _request("DELETE", f"/api/passive/{id}")
 
 def add_active(c):         return _request("POST", "/api/active", c)
 def get_active(id):        return _request("GET", f"/api/active/{id}")
+def search_active(id=None, brand=None):
+    q = []
+    if id is not None: q.append(f"id={id}")
+    if brand:          q.append(f"brand={brand}")
+    return _request("GET", "/api/active/search" + ("?" + "&".join(q) if q else ""))
 def list_active(brand=None, pkg=None):
     q = []
     if brand: q.append(f"brand={brand}")

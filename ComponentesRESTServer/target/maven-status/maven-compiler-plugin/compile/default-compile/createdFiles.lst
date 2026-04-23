@@ -1,7 +1,11 @@
 com/components/model/ActiveComponent.class
+com/components/model/ActiveComponent$Builder.class
 com/components/model/PassiveComponent.class
+com/components/observer/IComponentObserver.class
 com/components/controller/PassiveComponentController.class
 com/components/ComponentesRESTServerApplication.class
+com/components/observer/ComponentListLogger.class
 com/components/model/ElectronicComponent.class
 com/components/controller/ActiveComponentController.class
+com/components/model/PassiveComponent$Builder.class
 com/components/service/ComponentService.class

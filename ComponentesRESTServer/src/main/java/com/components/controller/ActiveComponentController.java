@@ -35,6 +35,23 @@ public class ActiveComponentController {
         return ResponseEntity.ok(c);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<?> search(
+            @RequestParam(required = false) Integer id,
+            @RequestParam(required = false) String brand) {
+        if (id != null) {
+            ActiveComponent c = service.findActiveById(id);
+            if (c == null) return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(c);
+        }
+        if (brand != null) {
+            ActiveComponent c = service.findActiveByBrand(brand);
+            if (c == null) return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(c);
+        }
+        return ResponseEntity.badRequest().body("Debe proporcionar id o brand");
+    }
+
     @GetMapping
     public ResponseEntity<List<ActiveComponent>> findAll(
             @RequestParam(required = false) String brand,

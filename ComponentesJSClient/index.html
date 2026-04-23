@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Electronic Components Manager</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <nav>
+    <div class="nav-brand">Electronic Components</div>
+    <div class="nav-links">
+      <div class="dropdown">
+        <button class="nav-btn">Componente Pasivo</button>
+        <div class="dropdown-content">
+          <a href="#" onclick="showSection('passive-insert')">Insertar</a>
+          <a href="#" onclick="showSection('passive-search')">Consultar</a>
+          <a href="#" onclick="showSection('passive-update')">Actualizar</a>
+          <a href="#" onclick="showSection('passive-delete')">Eliminar</a>
+          <a href="#" onclick="showSection('passive-list')">Listar</a>
+        </div>
+      </div>
+      <div class="dropdown">
+        <button class="nav-btn">Componente Activo</button>
+        <div class="dropdown-content">
+          <a href="#" onclick="showSection('active-insert')">Insertar</a>
+          <a href="#" onclick="showSection('active-search')">Consultar</a>
+          <a href="#" onclick="showSection('active-update')">Actualizar</a>
+          <a href="#" onclick="showSection('active-delete')">Eliminar</a>
+          <a href="#" onclick="showSection('active-list')">Listar</a>
+        </div>
+      </div>
+      <button class="nav-btn" onclick="showAbout()">Ayuda</button>
+    </div>
+  </nav>
+
+  <main>
+    <!-- HOME -->
+    <section id="home" class="section active">
+      <h1>Electronic Components Manager</h1>
+      <p>Versión 1.0 — Bienvenido a la tienda electronica, para navegar usa el menu superior.</p>
+      <p>Integrante: Daniel Hoyos</p>
+    </section>
+
+    <!-- PASSIVE INSERT -->
+    <section id="passive-insert" class="section">
+      <h2>Insertar Componente Pasivo</h2>
+      <form onsubmit="insertPassive(event)">
+        <label>ID: <input type="number" id="pi-id" required></label>
+        <label>Marca: <input type="text" id="pi-brand" required></label>
+        <label>Encapsulado: <input type="text" id="pi-pkg" required></label>
+        <label>Voltaje (V): <input type="number" step="any" id="pi-voltage" required></label>
+        <label>Corriente (A): <input type="number" step="any" id="pi-current" required></label>
+        <label>Num. Pines: <input type="number" id="pi-pins" required></label>
+        <label>Tolerancia (%): <input type="number" step="any" id="pi-tolerance" required></label>
+        <label>Magnitud Nominal: <input type="number" step="any" id="pi-magnitude" required></label>
+        <label>Unidad: <input type="text" id="pi-unit" required></label>
+        <button type="submit" class="btn-primary">Guardar</button>
+      </form>
+      <div id="pi-msg" class="msg"></div>
+    </section>
+
+    <!-- PASSIVE SEARCH -->
+    <section id="passive-search" class="section">
+      <h2>Consultar Componente Pasivo</h2>
+      <div class="search-bar">
+        <input type="number" id="ps-id" placeholder="ID">
+        <span class="hint">ó</span>
+        <input type="text" id="ps-brand" placeholder="Marca">
+        <button class="btn-primary" onclick="searchPassive()">Buscar</button>
+      </div>
+      <div id="ps-result" class="result-box"></div>
+    </section>
+
+    <!-- PASSIVE UPDATE -->
+    <section id="passive-update" class="section">
+      <h2>Actualizar Componente Pasivo</h2>
+      <div class="search-bar">
+        <input type="number" id="pu-id" placeholder="ID a actualizar">
+        <button class="btn-primary" onclick="loadPassiveForUpdate()">Buscar</button>
+      </div>
+      <form id="pu-form" onsubmit="updatePassive(event)" style="display:none">
+        <label>Marca: <input type="text" id="pu-brand" required></label>
+        <label>Encapsulado: <input type="text" id="pu-pkg" required></label>
+        <label>Voltaje (V): <input type="number" step="any" id="pu-voltage" required></label>
+        <label>Corriente (A): <input type="number" step="any" id="pu-current" required></label>
+        <label>Num. Pines: <input type="number" id="pu-pins" required></label>
+        <label>Tolerancia (%): <input type="number" step="any" id="pu-tolerance" required></label>
+        <label>Magnitud Nominal: <input type="number" step="any" id="pu-magnitude" required></label>
+        <label>Unidad: <input type="text" id="pu-unit" required></label>
+        <button type="submit" class="btn-primary">Guardar Cambios</button>
+      </form>
+      <div id="pu-msg" class="msg"></div>
+    </section>
+
+    <!-- PASSIVE DELETE -->
+    <section id="passive-delete" class="section">
+      <h2>Eliminar Componente Pasivo</h2>
+      <div class="search-bar">
+        <input type="number" id="pd-id" placeholder="ID">
+        <button class="btn-primary" onclick="loadPassiveForDelete()">Buscar</button>
+      </div>
+      <div id="pd-result" class="result-box"></div>
+      <button id="pd-btn" class="btn-danger" onclick="deletePassive()" style="display:none">Eliminar</button>
+      <div id="pd-msg" class="msg"></div>
+    </section>
+
+    <!-- PASSIVE LIST -->
+    <section id="passive-list" class="section">
+      <h2>Listar Componentes Pasivos</h2>
+      <div class="search-bar">
+        <input type="text" id="pl-brand" placeholder="Marca (opcional)">
+        <input type="text" id="pl-pkg" placeholder="Encapsulado (opcional)">
+        <button class="btn-primary" onclick="listPassive()">Filtrar</button>
+        <button class="btn-secondary" onclick="clearAndListPassive()">Ver todos</button>
+      </div>
+      <div id="pl-status" class="observer-status"></div>
+      <div class="table-wrap">
+        <table id="pl-table">
+          <thead><tr>
+            <th>ID</th><th>Marca</th><th>Encapsulado</th><th>Voltaje</th>
+            <th>Corriente</th><th>Pines</th><th>Tolerancia</th>
+            <th>Magnitud</th><th>Unidad</th><th>Fecha Registro</th>
+          </tr></thead>
+          <tbody id="pl-body"></tbody>
+        </table>
+      </div>
+    </section>
+
+    <!-- ACTIVE INSERT -->
+    <section id="active-insert" class="section">
+      <h2>Insertar Componente Activo</h2>
+      <form onsubmit="insertActive(event)">
+        <label>ID: <input type="number" id="ai-id" required></label>
+        <label>Marca: <input type="text" id="ai-brand" required></label>
+        <label>Encapsulado: <input type="text" id="ai-pkg" required></label>
+        <label>Voltaje (V): <input type="number" step="any" id="ai-voltage" required></label>
+        <label>Corriente (A): <input type="number" step="any" id="ai-current" required></label>
+        <label>Factor Ganancia: <input type="number" step="any" id="ai-gain" required></label>
+        <label>Pines (separados por coma): <input type="text" id="ai-pins" placeholder="Base,Colector,Emisor" required></label>
+        <button type="submit" class="btn-primary">Guardar</button>
+      </form>
+      <div id="ai-msg" class="msg"></div>
+    </section>
+
+    <!-- ACTIVE SEARCH -->
+    <section id="active-search" class="section">
+      <h2>Consultar Componente Activo</h2>
+      <div class="search-bar">
+        <input type="number" id="as-id" placeholder="ID">
+        <span class="hint">ó</span>
+        <input type="text" id="as-brand" placeholder="Marca">
+        <button class="btn-primary" onclick="searchActive()">Buscar</button>
+      </div>
+      <div id="as-result" class="result-box"></div>
+    </section>
+
+    <!-- ACTIVE UPDATE -->
+    <section id="active-update" class="section">
+      <h2>Actualizar Componente Activo</h2>
+      <div class="search-bar">
+        <input type="number" id="au-id" placeholder="ID a actualizar">
+        <button class="btn-primary" onclick="loadActiveForUpdate()">Buscar</button>
+      </div>
+      <form id="au-form" onsubmit="updateActive(event)" style="display:none">
+        <label>Marca: <input type="text" id="au-brand" required></label>
+        <label>Encapsulado: <input type="text" id="au-pkg" required></label>
+        <label>Voltaje (V): <input type="number" step="any" id="au-voltage" required></label>
+        <label>Corriente (A): <input type="number" step="any" id="au-current" required></label>
+        <label>Factor Ganancia: <input type="number" step="any" id="au-gain" required></label>
+        <label>Pines (coma): <input type="text" id="au-pins" required></label>
+        <button type="submit" class="btn-primary">Guardar Cambios</button>
+      </form>
+      <div id="au-msg" class="msg"></div>
+    </section>
+
+    <!-- ACTIVE DELETE -->
+    <section id="active-delete" class="section">
+      <h2>Eliminar Componente Activo</h2>
+      <div class="search-bar">
+        <input type="number" id="ad-id" placeholder="ID">
+        <button class="btn-primary" onclick="loadActiveForDelete()">Buscar</button>
+      </div>
+      <div id="ad-result" class="result-box"></div>
+      <button id="ad-btn" class="btn-danger" onclick="deleteActive()" style="display:none">Eliminar</button>
+      <div id="ad-msg" class="msg"></div>
+    </section>
+
+    <!-- ACTIVE LIST -->
+    <section id="active-list" class="section">
+      <h2>Listar Componentes Activos</h2>
+      <div class="search-bar">
+        <input type="text" id="al-brand" placeholder="Marca (opcional)">
+        <input type="text" id="al-pkg" placeholder="Encapsulado (opcional)">
+        <button class="btn-primary" onclick="listActive()">Filtrar</button>
+        <button class="btn-secondary" onclick="clearAndListActive()">Ver todos</button>
+      </div>
+      <div id="al-status" class="observer-status"></div>
+      <div class="table-wrap">
+        <table id="al-table">
+          <thead><tr>
+            <th>ID</th><th>Marca</th><th>Encapsulado</th><th>Voltaje</th>
+            <th>Corriente</th><th>Pines</th><th>Ganancia</th>
+            <th>Nombres Pines</th><th>Fecha Registro</th>
+          </tr></thead>
+          <tbody id="al-body"></tbody>
+        </table>
+      </div>
+    </section>
+  </main>
+
+  <!-- ABOUT MODAL -->
+  <div id="about-modal" class="modal-overlay" onclick="hideAbout()">
+    <div class="modal" onclick="event.stopPropagation()">
+      <h2>Acerca de...</h2>
+      <p><strong>Electronic Components Manager</strong></p>
+      <p>Versión: 1.0</p>
+      <p>Integrante: Daniel Hoyos</p>
+      <button class="btn-primary" onclick="hideAbout()">Cerrar</button>
+    </div>
+  </div>
+  <script src="app.js"></script>
+</body>
+</html>

@@ -35,6 +35,23 @@ public class PassiveComponentController {
         return ResponseEntity.ok(c);
     }
 
+    @GetMapping("/search")
+    public ResponseEntity<?> search(
+            @RequestParam(required = false) Integer id,
+            @RequestParam(required = false) String brand) {
+        if (id != null) {
+            PassiveComponent c = service.findPassiveById(id);
+            if (c == null) return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(c);
+        }
+        if (brand != null) {
+            PassiveComponent c = service.findPassiveByBrand(brand);
+            if (c == null) return ResponseEntity.notFound().build();
+            return ResponseEntity.ok(c);
+        }
+        return ResponseEntity.badRequest().body("Debe proporcionar id o brand");
+    }
+
     @GetMapping
     public ResponseEntity<List<PassiveComponent>> findAll(
             @RequestParam(required = false) String brand,

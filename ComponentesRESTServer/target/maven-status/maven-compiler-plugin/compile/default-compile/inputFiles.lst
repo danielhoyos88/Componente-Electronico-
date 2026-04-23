@@ -4,4 +4,6 @@
 /Users/danielhoyosmac/Desktop/GITHUB/ProyectoComponente/ComponentesRESTServer/src/main/java/com/components/ComponentesRESTServerApplication.java
 /Users/danielhoyosmac/Desktop/GITHUB/ProyectoComponente/ComponentesRESTServer/src/main/java/com/components/controller/PassiveComponentController.java
 /Users/danielhoyosmac/Desktop/GITHUB/ProyectoComponente/ComponentesRESTServer/src/main/java/com/components/service/ComponentService.java
+/Users/danielhoyosmac/Desktop/GITHUB/ProyectoComponente/ComponentesRESTServer/src/main/java/com/components/observer/IComponentObserver.java
+/Users/danielhoyosmac/Desktop/GITHUB/ProyectoComponente/ComponentesRESTServer/src/main/java/com/components/observer/ComponentListLogger.java
 /Users/danielhoyosmac/Desktop/GITHUB/ProyectoComponente/ComponentesRESTServer/src/main/java/com/components/model/PassiveComponent.java

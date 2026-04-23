@@ -1,5 +1,3 @@
-@Daniel
-
 package com.components.model;
 
 import java.time.LocalDateTime;

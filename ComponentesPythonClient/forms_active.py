@@ -23,13 +23,21 @@ class FormInsertActive(tk.Toplevel):
         self.txt_pins.insert(0, "Base,Colector,Emisor")
         self.txt_pins.grid(row=len(fields), column=1, padx=10, pady=4)
 
+        tk.Label(self, text="ID Fabricante:").grid(row=len(fields)+1, column=0, sticky="e", padx=10, pady=4)
+        self.txt_fab = tk.Entry(self, width=28)
+        self.txt_fab.insert(0, "")
+        self.txt_fab.grid(row=len(fields)+1, column=1, padx=10, pady=4)
+        tk.Label(self, text="(Opcional)", fg="gray").grid(row=len(fields)+1, column=2, sticky="w")
+
         tk.Button(self, text="Guardar", bg="#1e50a0", fg="white",
-                  command=self._save).grid(row=len(fields)+1, column=1, pady=10, sticky="e", padx=10)
+                  command=self._save).grid(row=len(fields)+2, column=1, pady=10, sticky="e", padx=10)
 
     def _save(self):
         try:
             e = self.entries
             pins = [p.strip() for p in self.txt_pins.get().split(",")]
+            fab_id = self.txt_fab.get().strip()
+            fab = api.get_fabricante(int(fab_id)) if fab_id else None
             data = {
                 "id": int(e["ID"].get()),
                 "brand": e["Marca"].get().strip(),
@@ -37,7 +45,8 @@ class FormInsertActive(tk.Toplevel):
                 "voltage": float(e["Voltaje"].get()),
                 "current": float(e["Corriente"].get()),
                 "gainFactor": float(e["Factor Ganancia"].get()),
-                "pinNames": pins
+                "pinNames": pins,
+                "fabricante": fab
             }
             api.add_active(data)
             messagebox.showinfo("Éxito", "Componente activo insertado correctamente.")
@@ -238,7 +247,7 @@ class FormListActive(tk.Toplevel):
     def __init__(self, master):
         super().__init__(master)
         self.title("Listar Componentes Activos")
-        self.geometry("950x450")
+        self.geometry("1100x450")
         self.grab_set()
 
         filter_frame = tk.Frame(self)
@@ -259,11 +268,13 @@ class FormListActive(tk.Toplevel):
         self.lbl_status.pack(anchor="w", padx=12)
         self._observer = ListObserver(self.lbl_status)
 
-        cols = ("ID", "Marca", "Encapsulado", "Voltaje", "Corriente", "Pines", "Ganancia", "Nombres Pines", "Fecha Registro")
+        cols = ("ID", "Marca", "Encapsulado", "Voltaje", "Corriente", "Pines", "Ganancia", "Nombres Pines", "Fabricante", "Fecha Registro")
         self.tree = ttk.Treeview(self, columns=cols, show="headings")
+        widths = {"ID": 40, "Marca": 100, "Encapsulado": 80, "Voltaje": 65, "Corriente": 70,
+                  "Pines": 45, "Ganancia": 70, "Nombres Pines": 130, "Fabricante": 120, "Fecha Registro": 150}
         for c in cols:
             self.tree.heading(c, text=c)
-            self.tree.column(c, width=100)
+            self.tree.column(c, width=widths.get(c, 100))
         scroll = ttk.Scrollbar(self, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=scroll.set)
         self.tree.pack(fill="both", expand=True, padx=10)
@@ -292,11 +303,12 @@ class FormListActive(tk.Toplevel):
             data = api.list_active(brand, pkg)
             self.tree.delete(*self.tree.get_children())
             for c in data:
+                fab = c["fabricante"]["nombre"] if c.get("fabricante") else "N/A"
                 self.tree.insert("", tk.END, values=(
                     c["id"], c["brand"], c["packageType"], c["voltage"],
                     c["current"], c["pinCount"], c["gainFactor"],
                     ", ".join(c["pinNames"]),
-                    c.get("registrationDate", "N/A")))
+                    fab, c.get("registrationDate", "N/A")))
             self._observer.on_data_loaded(len(data), filtered=bool(brand or pkg))
         except Exception:
             pass

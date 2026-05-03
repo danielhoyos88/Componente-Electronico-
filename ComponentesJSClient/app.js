@@ -46,6 +46,8 @@ const activeListObserver  = new ListObserver('al-status');
 async function insertPassive(e) {
   e.preventDefault();
   try {
+    const fabId = document.getElementById('pi-fab').value;
+    const fab = fabId ? await api('GET', `/api/fabricante/${fabId}`) : null;
     await api('POST', '/api/passive', {
       id: +document.getElementById('pi-id').value,
       brand: document.getElementById('pi-brand').value.trim(),
@@ -55,7 +57,8 @@ async function insertPassive(e) {
       pinCount: +document.getElementById('pi-pins').value,
       tolerance: +document.getElementById('pi-tolerance').value,
       nominalMagnitude: +document.getElementById('pi-magnitude').value,
-      nominalUnit: document.getElementById('pi-unit').value.trim()
+      nominalUnit: document.getElementById('pi-unit').value.trim(),
+      fabricante: fab
     });
     setMsg('pi-msg', 'Componente pasivo insertado correctamente.', true);
     e.target.reset();
@@ -89,6 +92,7 @@ async function loadPassiveForUpdate() {
     document.getElementById('pu-tolerance').value = c.tolerance;
     document.getElementById('pu-magnitude').value = c.nominalMagnitude;
     document.getElementById('pu-unit').value      = c.nominalUnit;
+    document.getElementById('pu-fab').value       = c.fabricante ? c.fabricante.id : '';
     document.getElementById('pu-form').style.display = 'flex';
     setMsg('pu-msg', '', true);
   } catch(err) { setMsg('pu-msg', err.message, false); }
@@ -96,6 +100,8 @@ async function loadPassiveForUpdate() {
 async function updatePassive(e) {
   e.preventDefault();
   try {
+    const fabId = document.getElementById('pu-fab').value;
+    const fab = fabId ? await api('GET', `/api/fabricante/${fabId}`) : _passiveCurrent.fabricante;
     await api('PUT', `/api/passive/${_passiveCurrent.id}`, {
       ..._passiveCurrent,
       brand: document.getElementById('pu-brand').value.trim(),
@@ -105,7 +111,8 @@ async function updatePassive(e) {
       pinCount: +document.getElementById('pu-pins').value,
       tolerance: +document.getElementById('pu-tolerance').value,
       nominalMagnitude: +document.getElementById('pu-magnitude').value,
-      nominalUnit: document.getElementById('pu-unit').value.trim()
+      nominalUnit: document.getElementById('pu-unit').value.trim(),
+      fabricante: fab
     });
     setMsg('pu-msg', 'Componente actualizado correctamente.', true);
     document.getElementById('pu-form').style.display = 'none';
@@ -156,7 +163,7 @@ async function listPassive() {
       <td>${c.id}</td><td>${c.brand}</td><td>${c.packageType}</td>
       <td>${c.voltage}</td><td>${c.current}</td><td>${c.pinCount}</td>
       <td>\u00b1${c.tolerance}%</td><td>${c.nominalMagnitude}</td><td>${c.nominalUnit}</td>
-      <td>${c.registrationDate || 'N/A'}</td>
+      <td>${c.fabricante ? c.fabricante.nombre : 'N/A'}</td><td>${c.registrationDate || 'N/A'}</td>
     </tr>`).join('');
     passiveListObserver.onDataLoaded(data.length, !!(brand || pkg));
   } catch(err) { alert(err.message); }
@@ -171,6 +178,8 @@ function clearAndListPassive() {
 async function insertActive(e) {
   e.preventDefault();
   try {
+    const fabId = document.getElementById('ai-fab').value;
+    const fab = fabId ? await api('GET', `/api/fabricante/${fabId}`) : null;
     await api('POST', '/api/active', {
       id: +document.getElementById('ai-id').value,
       brand: document.getElementById('ai-brand').value.trim(),
@@ -178,7 +187,8 @@ async function insertActive(e) {
       voltage: +document.getElementById('ai-voltage').value,
       current: +document.getElementById('ai-current').value,
       gainFactor: +document.getElementById('ai-gain').value,
-      pinNames: document.getElementById('ai-pins').value.split(',').map(p => p.trim())
+      pinNames: document.getElementById('ai-pins').value.split(',').map(p => p.trim()),
+      fabricante: fab
     });
     setMsg('ai-msg', 'Componente activo insertado correctamente.', true);
     e.target.reset();
@@ -210,6 +220,7 @@ async function loadActiveForUpdate() {
     document.getElementById('au-current').value = c.current;
     document.getElementById('au-gain').value    = c.gainFactor;
     document.getElementById('au-pins').value    = (c.pinNames || []).join(',');
+    document.getElementById('au-fab').value     = c.fabricante ? c.fabricante.id : '';
     document.getElementById('au-form').style.display = 'flex';
     setMsg('au-msg', '', true);
   } catch(err) { setMsg('au-msg', err.message, false); }
@@ -217,6 +228,8 @@ async function loadActiveForUpdate() {
 async function updateActive(e) {
   e.preventDefault();
   try {
+    const fabId = document.getElementById('au-fab').value;
+    const fab = fabId ? await api('GET', `/api/fabricante/${fabId}`) : _activeCurrent.fabricante;
     await api('PUT', `/api/active/${_activeCurrent.id}`, {
       ..._activeCurrent,
       brand: document.getElementById('au-brand').value.trim(),
@@ -224,7 +237,8 @@ async function updateActive(e) {
       voltage: +document.getElementById('au-voltage').value,
       current: +document.getElementById('au-current').value,
       gainFactor: +document.getElementById('au-gain').value,
-      pinNames: document.getElementById('au-pins').value.split(',').map(p => p.trim())
+      pinNames: document.getElementById('au-pins').value.split(',').map(p => p.trim()),
+      fabricante: fab
     });
     setMsg('au-msg', 'Componente actualizado correctamente.', true);
     document.getElementById('au-form').style.display = 'none';
@@ -275,7 +289,7 @@ async function listActive() {
       <td>${c.id}</td><td>${c.brand}</td><td>${c.packageType}</td>
       <td>${c.voltage}</td><td>${c.current}</td><td>${c.pinCount}</td>
       <td>${c.gainFactor}</td><td>${(c.pinNames || []).join(', ')}</td>
-      <td>${c.registrationDate || 'N/A'}</td>
+      <td>${c.fabricante ? c.fabricante.nombre : 'N/A'}</td><td>${c.registrationDate || 'N/A'}</td>
     </tr>`).join('');
     activeListObserver.onDataLoaded(data.length, !!(brand || pkg));
   } catch(err) { alert(err.message); }
@@ -286,12 +300,106 @@ function clearAndListActive() {
   listActive();
 }
 
+// ── FABRICANTE INSERT ──────────────────────────────────────────
+async function insertFabricante(e) {
+  e.preventDefault();
+  try {
+    await api('POST', '/api/fabricante', {
+      id: +document.getElementById('fi-id').value,
+      nombre: document.getElementById('fi-nombre').value.trim(),
+      pais: document.getElementById('fi-pais').value.trim()
+    });
+    setMsg('fi-msg', 'Fabricante insertado correctamente.', true);
+    e.target.reset();
+  } catch(err) { setMsg('fi-msg', err.message, false); }
+}
+
+// ── FABRICANTE SEARCH ──────────────────────────────────────────
+async function searchFabricante() {
+  const id = document.getElementById('fs-id').value.trim();
+  try {
+    const f = await api('GET', `/api/fabricante/${id}`);
+    const el = document.getElementById('fs-result');
+    if (!f) { el.textContent = 'Fabricante no encontrado.'; return; }
+    el.textContent = `ID:      ${f.id}\nNombre:  ${f.nombre}\nPaís:    ${f.pais}`;
+  } catch(err) { document.getElementById('fs-result').textContent = err.message; }
+}
+
+// ── FABRICANTE UPDATE ──────────────────────────────────────────
+let _fabricanteCurrent = null;
+async function loadFabricanteForUpdate() {
+  const id = document.getElementById('fu-id').value;
+  try {
+    _fabricanteCurrent = await api('GET', `/api/fabricante/${id}`);
+    if (!_fabricanteCurrent) { setMsg('fu-msg', 'No encontrado.', false); return; }
+    document.getElementById('fu-nombre').value = _fabricanteCurrent.nombre;
+    document.getElementById('fu-pais').value   = _fabricanteCurrent.pais;
+    document.getElementById('fu-form').style.display = 'flex';
+    setMsg('fu-msg', '', true);
+  } catch(err) { setMsg('fu-msg', err.message, false); }
+}
+async function updateFabricante(e) {
+  e.preventDefault();
+  try {
+    await api('PUT', `/api/fabricante/${_fabricanteCurrent.id}`, {
+      ..._fabricanteCurrent,
+      nombre: document.getElementById('fu-nombre').value.trim(),
+      pais:   document.getElementById('fu-pais').value.trim()
+    });
+    setMsg('fu-msg', 'Fabricante actualizado correctamente.', true);
+    document.getElementById('fu-form').style.display = 'none';
+  } catch(err) { setMsg('fu-msg', err.message, false); }
+}
+
+// ── FABRICANTE DELETE ──────────────────────────────────────────
+let _fabricanteToDelete = null;
+async function loadFabricanteForDelete() {
+  const id = document.getElementById('fd-id').value;
+  try {
+    _fabricanteToDelete = await api('GET', `/api/fabricante/${id}`);
+    const res = document.getElementById('fd-result');
+    const btn = document.getElementById('fd-btn');
+    if (!_fabricanteToDelete) {
+      res.textContent = 'Fabricante no encontrado.';
+      btn.style.display = 'none';
+    } else {
+      res.textContent = `ID:      ${_fabricanteToDelete.id}\nNombre:  ${_fabricanteToDelete.nombre}\nPaís:    ${_fabricanteToDelete.pais}`;
+      btn.style.display = 'inline-block';
+    }
+    setMsg('fd-msg', '', true);
+  } catch(err) { setMsg('fd-msg', err.message, false); }
+}
+async function deleteFabricante() {
+  if (!_fabricanteToDelete) return;
+  if (!confirm(`¿Eliminar fabricante ID ${_fabricanteToDelete.id} (${_fabricanteToDelete.nombre})?`)) return;
+  try {
+    await api('DELETE', `/api/fabricante/${_fabricanteToDelete.id}`);
+    setMsg('fd-msg', 'Fabricante eliminado correctamente.', true);
+    document.getElementById('fd-result').textContent = '';
+    document.getElementById('fd-btn').style.display = 'none';
+    _fabricanteToDelete = null;
+  } catch(err) { setMsg('fd-msg', err.message, false); }
+}
+
+// ── FABRICANTE LIST ───────────────────────────────────────────
+let _fabricanteListInterval = null;
+async function listFabricante() {
+  try {
+    const data = await api('GET', '/api/fabricante');
+    document.getElementById('fl-body').innerHTML = data.map(f => `<tr>
+      <td>${f.id}</td><td>${f.nombre}</td><td>${f.pais}</td>
+    </tr>`).join('');
+    document.getElementById('fl-status').textContent = `Total: ${data.length} fabricante(s).`;
+  } catch(err) { alert(err.message); }
+}
+
 // ── Refrescar Automatico al mostrar secciones de Listar ──────────────────
 function showSection(id) {
   document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
   document.getElementById(id).classList.add('active');
   clearInterval(_passiveListInterval);
   clearInterval(_activeListInterval);
+  clearInterval(_fabricanteListInterval);
   if (id === 'passive-list') {
     listPassive();
     _passiveListInterval = setInterval(listPassive, 3000);
@@ -299,5 +407,9 @@ function showSection(id) {
   if (id === 'active-list') {
     listActive();
     _activeListInterval = setInterval(listActive, 3000);
+  }
+  if (id === 'fab-list') {
+    listFabricante();
+    _fabricanteListInterval = setInterval(listFabricante, 3000);
   }
 }

@@ -1,9 +1,18 @@
 package com.components.model;
 
+import jakarta.persistence.*;
+
+@Entity
+@Table(name = "passive_component")
 public class PassiveComponent extends ElectronicComponent {
 
+    @Column(nullable = false)
     private double tolerance;
+
+    @Column(name = "nominal_magnitude", nullable = false)
     private double nominalMagnitude;
+
+    @Column(name = "nominal_unit", nullable = false, length = 20)
     private String nominalUnit;
 
     public PassiveComponent() {}
@@ -25,29 +34,4 @@ public class PassiveComponent extends ElectronicComponent {
 
     public String getNominalUnit() { return nominalUnit; }
     public void setNominalUnit(String nominalUnit) { this.nominalUnit = nominalUnit; }
-
-    // ── Builder ──────────────────────────────────────────────────
-    public static Builder builder() { return new Builder(); }
-
-    public static class Builder {
-        private int id;
-        private String brand, packageType, nominalUnit;
-        private double voltage, current, tolerance, nominalMagnitude;
-        private int pinCount;
-
-        public Builder id(int id)                           { this.id = id; return this; }
-        public Builder brand(String brand)                  { this.brand = brand; return this; }
-        public Builder packageType(String packageType)      { this.packageType = packageType; return this; }
-        public Builder voltage(double voltage)              { this.voltage = voltage; return this; }
-        public Builder current(double current)              { this.current = current; return this; }
-        public Builder pinCount(int pinCount)               { this.pinCount = pinCount; return this; }
-        public Builder tolerance(double tolerance)          { this.tolerance = tolerance; return this; }
-        public Builder nominalMagnitude(double nominalMagnitude) { this.nominalMagnitude = nominalMagnitude; return this; }
-        public Builder nominalUnit(String nominalUnit)      { this.nominalUnit = nominalUnit; return this; }
-
-        public PassiveComponent build() {
-            return new PassiveComponent(id, brand, packageType, voltage, current,
-                    pinCount, tolerance, nominalMagnitude, nominalUnit);
-        }
-    }
 }

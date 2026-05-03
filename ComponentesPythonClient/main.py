@@ -4,6 +4,8 @@ from forms_passive import (FormInsertPassive, FormSearchPassive,
                             FormUpdatePassive, FormDeletePassive, FormListPassive)
 from forms_active import (FormInsertActive, FormSearchActive,
                            FormUpdateActive, FormDeleteActive, FormListActive)
+from forms_fabricante import (FormInsertFabricante, FormSearchFabricante,
+                               FormUpdateFabricante, FormDeleteFabricante, FormListFabricante)
 
 class App(tk.Tk):
     def __init__(self):
@@ -35,6 +37,15 @@ class App(tk.Tk):
         active_menu.add_command(label="Eliminar",  command=lambda: FormDeleteActive(self))
         active_menu.add_command(label="Listar",    command=lambda: FormListActive(self))
         menubar.add_cascade(label="Componente Activo", menu=active_menu)
+
+        # Fabricante
+        fab_menu = tk.Menu(menubar, tearoff=0)
+        fab_menu.add_command(label="Insertar",   command=lambda: FormInsertFabricante(self))
+        fab_menu.add_command(label="Consultar",  command=lambda: FormSearchFabricante(self))
+        fab_menu.add_command(label="Actualizar", command=lambda: FormUpdateFabricante(self))
+        fab_menu.add_command(label="Eliminar",   command=lambda: FormDeleteFabricante(self))
+        fab_menu.add_command(label="Listar",     command=lambda: FormListFabricante(self))
+        menubar.add_cascade(label="Fabricante", menu=fab_menu)
 
         # Ayuda
         help_menu = tk.Menu(menubar, tearoff=0)

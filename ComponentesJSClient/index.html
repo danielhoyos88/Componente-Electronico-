@@ -29,6 +29,16 @@
           <a href="#" onclick="showSection('active-list')">Listar</a>
         </div>
       </div>
+      <div class="dropdown">
+        <button class="nav-btn">Fabricante</button>
+        <div class="dropdown-content">
+          <a href="#" onclick="showSection('fab-insert')">Insertar</a>
+          <a href="#" onclick="showSection('fab-search')">Consultar</a>
+          <a href="#" onclick="showSection('fab-update')">Actualizar</a>
+          <a href="#" onclick="showSection('fab-delete')">Eliminar</a>
+          <a href="#" onclick="showSection('fab-list')">Listar</a>
+        </div>
+      </div>
       <button class="nav-btn" onclick="showAbout()">Ayuda</button>
     </div>
   </nav>
@@ -54,6 +64,7 @@
         <label>Tolerancia (%): <input type="number" step="any" id="pi-tolerance" required></label>
         <label>Magnitud Nominal: <input type="number" step="any" id="pi-magnitude" required></label>
         <label>Unidad: <input type="text" id="pi-unit" required></label>
+        <label>ID Fabricante: <input type="number" id="pi-fab" placeholder="Opcional"></label>
         <button type="submit" class="btn-primary">Guardar</button>
       </form>
       <div id="pi-msg" class="msg"></div>
@@ -87,6 +98,7 @@
         <label>Tolerancia (%): <input type="number" step="any" id="pu-tolerance" required></label>
         <label>Magnitud Nominal: <input type="number" step="any" id="pu-magnitude" required></label>
         <label>Unidad: <input type="text" id="pu-unit" required></label>
+        <label>ID Fabricante: <input type="number" id="pu-fab" placeholder="Opcional"></label>
         <button type="submit" class="btn-primary">Guardar Cambios</button>
       </form>
       <div id="pu-msg" class="msg"></div>
@@ -119,7 +131,7 @@
           <thead><tr>
             <th>ID</th><th>Marca</th><th>Encapsulado</th><th>Voltaje</th>
             <th>Corriente</th><th>Pines</th><th>Tolerancia</th>
-            <th>Magnitud</th><th>Unidad</th><th>Fecha Registro</th>
+            <th>Magnitud</th><th>Unidad</th><th>Fabricante</th><th>Fecha Registro</th>
           </tr></thead>
           <tbody id="pl-body"></tbody>
         </table>
@@ -137,6 +149,7 @@
         <label>Corriente (A): <input type="number" step="any" id="ai-current" required></label>
         <label>Factor Ganancia: <input type="number" step="any" id="ai-gain" required></label>
         <label>Pines (separados por coma): <input type="text" id="ai-pins" placeholder="Base,Colector,Emisor" required></label>
+        <label>ID Fabricante: <input type="number" id="ai-fab" placeholder="Opcional"></label>
         <button type="submit" class="btn-primary">Guardar</button>
       </form>
       <div id="ai-msg" class="msg"></div>
@@ -168,6 +181,7 @@
         <label>Corriente (A): <input type="number" step="any" id="au-current" required></label>
         <label>Factor Ganancia: <input type="number" step="any" id="au-gain" required></label>
         <label>Pines (coma): <input type="text" id="au-pins" required></label>
+        <label>ID Fabricante: <input type="number" id="au-fab" placeholder="Opcional"></label>
         <button type="submit" class="btn-primary">Guardar Cambios</button>
       </form>
       <div id="au-msg" class="msg"></div>
@@ -200,13 +214,79 @@
           <thead><tr>
             <th>ID</th><th>Marca</th><th>Encapsulado</th><th>Voltaje</th>
             <th>Corriente</th><th>Pines</th><th>Ganancia</th>
-            <th>Nombres Pines</th><th>Fecha Registro</th>
+            <th>Nombres Pines</th><th>Fabricante</th><th>Fecha Registro</th>
           </tr></thead>
           <tbody id="al-body"></tbody>
         </table>
       </div>
     </section>
   </main>
+
+    <!-- FABRICANTE INSERT -->
+    <section id="fab-insert" class="section">
+      <h2>Insertar Fabricante</h2>
+      <form onsubmit="insertFabricante(event)">
+        <label>ID: <input type="number" id="fi-id" required></label>
+        <label>Nombre: <input type="text" id="fi-nombre" required></label>
+        <label>País: <input type="text" id="fi-pais" required></label>
+        <button type="submit" class="btn-primary">Guardar</button>
+      </form>
+      <div id="fi-msg" class="msg"></div>
+    </section>
+
+    <!-- FABRICANTE SEARCH -->
+    <section id="fab-search" class="section">
+      <h2>Consultar Fabricante</h2>
+      <div class="search-bar">
+        <input type="number" id="fs-id" placeholder="ID">
+        <button class="btn-primary" onclick="searchFabricante()">Buscar</button>
+      </div>
+      <div id="fs-result" class="result-box"></div>
+    </section>
+
+    <!-- FABRICANTE UPDATE -->
+    <section id="fab-update" class="section">
+      <h2>Actualizar Fabricante</h2>
+      <div class="search-bar">
+        <input type="number" id="fu-id" placeholder="ID a actualizar">
+        <button class="btn-primary" onclick="loadFabricanteForUpdate()">Buscar</button>
+      </div>
+      <form id="fu-form" onsubmit="updateFabricante(event)" style="display:none">
+        <label>Nombre: <input type="text" id="fu-nombre" required></label>
+        <label>País: <input type="text" id="fu-pais" required></label>
+        <button type="submit" class="btn-primary">Guardar Cambios</button>
+      </form>
+      <div id="fu-msg" class="msg"></div>
+    </section>
+
+    <!-- FABRICANTE DELETE -->
+    <section id="fab-delete" class="section">
+      <h2>Eliminar Fabricante</h2>
+      <div class="search-bar">
+        <input type="number" id="fd-id" placeholder="ID">
+        <button class="btn-primary" onclick="loadFabricanteForDelete()">Buscar</button>
+      </div>
+      <div id="fd-result" class="result-box"></div>
+      <button id="fd-btn" class="btn-danger" onclick="deleteFabricante()" style="display:none">Eliminar</button>
+      <div id="fd-msg" class="msg"></div>
+    </section>
+
+    <!-- FABRICANTE LIST -->
+    <section id="fab-list" class="section">
+      <h2>Listar Fabricantes</h2>
+      <div class="search-bar">
+        <button class="btn-secondary" onclick="listFabricante()">Ver todos</button>
+      </div>
+      <div id="fl-status" class="observer-status"></div>
+      <div class="table-wrap">
+        <table>
+          <thead><tr>
+            <th>ID</th><th>Nombre</th><th>País</th>
+          </tr></thead>
+          <tbody id="fl-body"></tbody>
+        </table>
+      </div>
+    </section>
 
   <!-- ABOUT MODAL -->
   <div id="about-modal" class="modal-overlay" onclick="hideAbout()">

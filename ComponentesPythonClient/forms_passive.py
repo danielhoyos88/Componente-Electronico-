@@ -19,12 +19,19 @@ class FormInsertPassive(tk.Toplevel):
             e.grid(row=i, column=1, padx=10, pady=4)
             self.entries[f] = e
 
+        tk.Label(self, text="ID Fabricante:").grid(row=len(fields), column=0, sticky="e", padx=10, pady=4)
+        self.txt_fab = tk.Entry(self, width=28)
+        self.txt_fab.grid(row=len(fields), column=1, padx=10, pady=4)
+        tk.Label(self, text="(Opcional)", fg="gray").grid(row=len(fields), column=2, sticky="w")
+
         tk.Button(self, text="Guardar", bg="#1e50a0", fg="white",
-                  command=self._save).grid(row=len(fields), column=1, pady=10, sticky="e", padx=10)
+                  command=self._save).grid(row=len(fields)+1, column=1, pady=10, sticky="e", padx=10)
 
     def _save(self):
         try:
             e = self.entries
+            fab_id = self.txt_fab.get().strip()
+            fab = api.get_fabricante(int(fab_id)) if fab_id else None
             data = {
                 "id": int(e["ID"].get()),
                 "brand": e["Marca"].get().strip(),
@@ -34,7 +41,8 @@ class FormInsertPassive(tk.Toplevel):
                 "pinCount": int(e["Num. Pines"].get()),
                 "tolerance": float(e["Tolerancia (%)"].get()),
                 "nominalMagnitude": float(e["Magnitud Nominal"].get()),
-                "nominalUnit": e["Unidad"].get().strip()
+                "nominalUnit": e["Unidad"].get().strip(),
+                "fabricante": fab
             }
             api.add_passive(data)
             messagebox.showinfo("Éxito", "Componente pasivo insertado correctamente.")
@@ -234,7 +242,7 @@ class FormListPassive(tk.Toplevel):
     def __init__(self, master):
         super().__init__(master)
         self.title("Listar Componentes Pasivos")
-        self.geometry("900x450")
+        self.geometry("1100x450")
         self.grab_set()
 
         filter_frame = tk.Frame(self)
@@ -255,11 +263,13 @@ class FormListPassive(tk.Toplevel):
         self.lbl_status.pack(anchor="w", padx=12)
         self._observer = ListObserver(self.lbl_status)
 
-        cols = ("ID", "Marca", "Encapsulado", "Voltaje", "Corriente", "Pines", "Tolerancia", "Magnitud", "Unidad", "Fecha Registro")
+        cols = ("ID", "Marca", "Encapsulado", "Voltaje", "Corriente", "Pines", "Tolerancia", "Magnitud", "Unidad", "Fabricante", "Fecha Registro")
         self.tree = ttk.Treeview(self, columns=cols, show="headings")
+        widths = {"ID": 40, "Marca": 100, "Encapsulado": 80, "Voltaje": 65, "Corriente": 70,
+                  "Pines": 45, "Tolerancia": 70, "Magnitud": 75, "Unidad": 55, "Fabricante": 120, "Fecha Registro": 150}
         for c in cols:
             self.tree.heading(c, text=c)
-            self.tree.column(c, width=88)
+            self.tree.column(c, width=widths.get(c, 80))
         scroll = ttk.Scrollbar(self, orient="vertical", command=self.tree.yview)
         self.tree.configure(yscrollcommand=scroll.set)
         self.tree.pack(fill="both", expand=True, padx=10)
@@ -288,11 +298,12 @@ class FormListPassive(tk.Toplevel):
             data = api.list_passive(brand, pkg)
             self.tree.delete(*self.tree.get_children())
             for c in data:
+                fab = c["fabricante"]["nombre"] if c.get("fabricante") else "N/A"
                 self.tree.insert("", tk.END, values=(
                     c["id"], c["brand"], c["packageType"], c["voltage"],
                     c["current"], c["pinCount"], c["tolerance"],
                     c["nominalMagnitude"], c["nominalUnit"],
-                    c.get("registrationDate", "N/A")))
+                    fab, c.get("registrationDate", "N/A")))
             self._observer.on_data_loaded(len(data), filtered=bool(brand or pkg))
         except Exception:
             pass

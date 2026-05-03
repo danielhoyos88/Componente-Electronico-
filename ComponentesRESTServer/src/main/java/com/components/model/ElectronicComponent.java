@@ -1,16 +1,38 @@
 package com.components.model;
 
+import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
+@Entity
+@Inheritance(strategy = InheritanceType.JOINED)
+@Table(name = "electronic_component")
 public abstract class ElectronicComponent {
 
+    @Id
+    @Column(nullable = false)
     private int id;
+
+    @Column(nullable = false, length = 100)
     private String brand;
+
+    @Column(name = "package_type", nullable = false, length = 50)
     private String packageType;
+
+    @Column(nullable = false)
     private double voltage;
+
+    @Column(nullable = false)
     private double current;
+
+    @Column(name = "pin_count", nullable = false)
     private int pinCount;
+
+    @Column(name = "registration_date")
     private LocalDateTime registrationDate;
+
+    @ManyToOne
+    @JoinColumn(name = "fabricante_id")
+    private Fabricante fabricante;
 
     public ElectronicComponent() {}
 
@@ -45,4 +67,7 @@ public abstract class ElectronicComponent {
 
     public LocalDateTime getRegistrationDate() { return registrationDate; }
     public void setRegistrationDate(LocalDateTime registrationDate) { this.registrationDate = registrationDate; }
+
+    public Fabricante getFabricante() { return fabricante; }
+    public void setFabricante(Fabricante fabricante) { this.fabricante = fabricante; }
 }

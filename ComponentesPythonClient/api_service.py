@@ -32,6 +32,14 @@ def list_passive(brand=None, pkg=None):
 def update_passive(id, c): return _request("PUT", f"/api/passive/{id}", c)
 def delete_passive(id):    return _request("DELETE", f"/api/passive/{id}")
 
+def add_fabricante(f):        return _request("POST", "/api/fabricante", f)
+def get_fabricante(id):       return _request("GET", f"/api/fabricante/{id}")
+def list_fabricante(pais=None):
+    q = f"?pais={pais}" if pais else ""
+    return _request("GET", "/api/fabricante" + q)
+def update_fabricante(id, f): return _request("PUT", f"/api/fabricante/{id}", f)
+def delete_fabricante(id):    return _request("DELETE", f"/api/fabricante/{id}")
+
 def add_active(c):         return _request("POST", "/api/active", c)
 def get_active(id):        return _request("GET", f"/api/active/{id}")
 def search_active(id=None, brand=None):

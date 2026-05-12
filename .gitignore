@@ -3,6 +3,11 @@ target/
 *.jar
 *.class
 
+# H2 Database
+data/
+*.mv.db
+*.trace.db
+
 # Python
 __pycache__/
 *.pyc
